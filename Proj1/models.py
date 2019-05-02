@@ -49,7 +49,7 @@ class Baseline(nn.Module):
 class Baseline2(nn.Module):
     
     def __init__(self):
-        super(ModelX, self).__init__()
+        super(Baseline2, self).__init__()
         self.layer = nn.Linear(IMAGE_HEIGHT*IMAGE_HEIGHT, 20)
         self.layer1 = nn.Linear(20,20)
         self.final_layer = nn.Linear(20,1)   
