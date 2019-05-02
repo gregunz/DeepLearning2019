@@ -1,9 +1,16 @@
+import numpy as np
+
+import torch
 import torch.optim as optim
 import torch.nn as nn
 import torch.utils.data as utils
 
-from train import train_model
+from matplotlib import pyplot as plt
 
+import dlc_practical_prologue as dlc
+
+from train import train_model
+from constants import N
 
 criterion = nn.BCELoss()
 
