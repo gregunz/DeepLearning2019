@@ -3,10 +3,11 @@ import sys
 import copy
 import torch
 
-def train_model(dataloaders, dataset_sizes, model, device, criterion, optimizer, scheduler=None, writer=None, num_epochs=25):
+def train_model(dataloaders, dataset_sizes, model, device, criterion, optimizer, scheduler=None, writer=None, num_epochs=25, verbose=False):
     since = time.time()
     
     epoch_losses = {'train': [], 'val': []}
+    epoch_accuracies = {'train': [], 'val': []}
 
     best_model_wts = copy.deepcopy(model.state_dict())
     best_acc = 0.0
@@ -51,13 +52,14 @@ def train_model(dataloaders, dataset_sizes, model, device, criterion, optimizer,
                     running_acc += torch.sum(preds == labels.data).double() / preds.nelement()
 
                     # tensorboard
-                    if writer :
+                    if writer is not None:
                         x_axis = i + epoch * dataset_sizes[phase]
                         writer.add_scalar('{}_loss'.format(phase), loss_scalar,  x_axis)
                     
                 epoch_loss = running_loss / dataset_sizes[phase]
                 epoch_losses[phase].append(epoch_loss)
                 epoch_acc = running_acc / dataset_sizes[phase]
+                epoch_accuracies[phase].append(epoch_acc)
 
                 # deep copy the model
                 if phase == 'val' and epoch_loss < best_loss:
@@ -70,10 +72,11 @@ def train_model(dataloaders, dataset_sizes, model, device, criterion, optimizer,
         pass
     
     time_elapsed = time.time() - since
-    print('Training complete in {:.0f}m {:.0f}s'.format(time_elapsed // 60, time_elapsed % 60))
-    print('Best val Loss: {:4f}'.format(best_loss))
-    print('Best val Acc: {:4f}'.format(best_acc))
+    if verbose:
+        print('Training complete in {:.0f}m {:.0f}s'.format(time_elapsed // 60, time_elapsed % 60))
+        print('Best val Loss: {:.4f}'.format(best_loss))
+        print('Best val Acc: {:.4f}'.format(best_acc))
 
     # load best model weights
     model.load_state_dict(best_model_wts)
-    return model, epoch_losses
+    return model, epoch_losses, epoch_accuracies
