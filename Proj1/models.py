@@ -46,7 +46,7 @@ class Baseline(nn.Module):
         out = self.out_act(out).squeeze(1)
         return out
 
-class ModelX(nn.Module):
+class Baseline2(nn.Module):
     
     def __init__(self):
         super(ModelX, self).__init__()
