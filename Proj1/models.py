@@ -45,3 +45,25 @@ class Baseline(nn.Module):
         out = self.final_layer(out)
         out = self.out_act(out).squeeze(1)
         return out
+
+class ModelX(nn.Module):
+    
+    def __init__(self):
+        super(ModelX, self).__init__()
+        self.layer = nn.Linear(IMAGE_HEIGHT*IMAGE_HEIGHT, 20)
+        self.layer1 = nn.Linear(20,20)
+        self.final_layer = nn.Linear(20,1)   
+        self.relu = nn.ReLU()
+        self.out_act = nn.Sigmoid()
+
+    def forward(self, x):
+        
+        img = img.squeeze(1).view(x.shape[0], -1)
+        img = self.layer(img)
+        img = self.relu(img)
+        img = self.layer1(img)
+        img = self.relu(img)      
+       
+        out = self.final_layer(out)
+        out = self.out_act(out).squeeze(1)
+        return x
