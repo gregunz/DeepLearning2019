@@ -1,3 +1,4 @@
+import time
 import numpy as np
 
 import torch
@@ -12,13 +13,13 @@ import dlc_practical_prologue as dlc
 from train import train_model
 from constants import N
 
-criterion = nn.BCELoss()
-
 def to_dataloader(X, Y, batch_size=32):
     dset = utils.TensorDataset(X, Y) # create your datset
     return utils.DataLoader(dset, batch_size=batch_size, shuffle=True) # create your dataloader
 
-def evaluate_model(model_callable, num_epochs=20, num_rounds=10, with_plot=True):
+def evaluate_model(model_callable, criterion, num_epochs=20, num_rounds=10, with_plot=True):
+    since = time.time()
+    
     model = model_callable()
     model_optim = optim.Adam(model.parameters(), lr=0.001, betas=(0.9, 0.999))
     
@@ -46,6 +47,7 @@ def evaluate_model(model_callable, num_epochs=20, num_rounds=10, with_plot=True)
 
     if with_plot:
         # Plotting loss
+        plt.figure(figsize=(16,9))
         plt.title('Loss (mean over {} rounds)'.format(num_rounds))
         plt.xticks(list(range(num_epochs)))
         best_loss_idx = np.argmin(mean_losses['val'])
@@ -55,6 +57,7 @@ def evaluate_model(model_callable, num_epochs=20, num_rounds=10, with_plot=True)
         plt.show()
 
         # Plotting accuracy
+        plt.figure(figsize=(16,9))
         plt.title('Accuracy (mean over {} rounds)'.format(num_rounds))
         plt.xticks(list(range(num_epochs)))
         best_acc_idx = np.argmax(mean_accuracies['val'])
@@ -66,5 +69,8 @@ def evaluate_model(model_callable, num_epochs=20, num_rounds=10, with_plot=True)
     best_accuracies = torch.max(accuracies['val'], dim=0)[0]
     print('Best validation accuracy (mean over {} rounds) = {:.4f}'.format(num_rounds, best_accuracies.mean()))
     print('and standard deviation = {:.4f}'.format(best_accuracies.std()))
+    
+    time_elapsed = time.time() - since
+    print('Evaluation complete in {:.0f}m {:.0f}s'.format(time_elapsed // 60, time_elapsed % 60))
     
     return losses, accuracies
