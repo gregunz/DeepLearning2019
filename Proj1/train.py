@@ -3,7 +3,7 @@ import sys
 import copy
 import torch
 
-def train_model(dataloaders, dataset_sizes, model, device, criterion, optimizer, scheduler=None, writer=None, num_epochs=25, verbose=False):
+def train_model(dataloaders, dataset_sizes, model, device, criterion, optimizer, scheduler=None, writer=None, num_epochs=25, verbose=False, aux_criterion=None):
     since = time.time()
     
     epoch_losses = {'train': [], 'val': []}
@@ -29,15 +29,20 @@ def train_model(dataloaders, dataset_sizes, model, device, criterion, optimizer,
 
                 # Iterate over data.
                 for i, (inputs, labels) in enumerate(dataloaders[phase]):
-                    
+                    if aux_criterion is not None:
+                        aux_labels = labels[:, 1:]
+                        labels = labels[:, 0]
                     # zero the parameter gradients
                     optimizer.zero_grad()
 
                     # forward
                     # track history if only in train
                     with torch.set_grad_enabled(phase == 'train'):
-                        outputs = model(inputs)
+                        outputs, aux_outputs = model(inputs)
                         loss = criterion(outputs, labels.float())
+                        if aux_criterion is not None:
+                            loss += aux_criterion(aux_outputs[:, :10], aux_labels[:, 0])
+                            loss += aux_criterion(aux_outputs[:, 10:], aux_labels[:, 1])
 
                         # backward + optimize only if in training phase
                         if phase == 'train':
