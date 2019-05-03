@@ -3,6 +3,8 @@ import sys
 import copy
 import torch
 
+from constants import AUX_LOSS_FACTOR
+
 def train_model(dataloaders, dataset_sizes, model, device, criterion, optimizer, scheduler=None, writer=None, num_epochs=25, verbose=False, aux_criterion=None):
     since = time.time()
     
@@ -41,8 +43,8 @@ def train_model(dataloaders, dataset_sizes, model, device, criterion, optimizer,
                         outputs, aux_outputs = model(inputs)
                         loss = criterion(outputs, labels.float())
                         if aux_criterion is not None:
-                            loss += aux_criterion(aux_outputs[:, :10], aux_labels[:, 0])
-                            loss += aux_criterion(aux_outputs[:, 10:], aux_labels[:, 1])
+                            loss += aux_criterion(aux_outputs[:, :10], aux_labels[:, 0]) * AUX_LOSS_FACTOR
+                            loss += aux_criterion(aux_outputs[:, 10:], aux_labels[:, 1]) * AUX_LOSS_FACTOR
 
                         # backward + optimize only if in training phase
                         if phase == 'train':

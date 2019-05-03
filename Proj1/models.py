@@ -52,7 +52,8 @@ class SimpleCNN(nn.Module):
         self.conv1 = nn.Conv2d(1, 16, 3)
         self.conv2 = nn.Conv2d(16, 16, 3)
         self.fc1 = nn.Linear(16*2*2, 10)
-        self.fc2 = nn.Linear(20, 1)
+        self.fc2 = nn.Linear(10, 10)
+        self.fc3 = nn.Linear(20, 1)
         
     def cnn_forward(self, x):
         # Convolution #1 with relu
@@ -67,7 +68,10 @@ class SimpleCNN(nn.Module):
         x = x.view(x.shape[0], -1)
         
         # Fully convolutional #1
-        x = self.fc1(x)
+        x = F.relu(self.fc1(x))
+        
+        # Fully convolutional #2
+        x = self.fc2(x)
         return x
 
     def forward(self, x):
@@ -80,6 +84,6 @@ class SimpleCNN(nn.Module):
         aux_out = torch.cat((F.softmax(out_left), F.softmax(out_right)), dim=1)
         
         # Fully convolutional #2 with sigmoid
-        out = torch.sigmoid(self.fc2(out)).squeeze(1)
+        out = torch.sigmoid(self.fc3(out)).squeeze(1)
         
         return out, aux_out
