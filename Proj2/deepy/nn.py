@@ -1,6 +1,8 @@
 import torch
+from deepy.tensor import Variable
 
 class Module(object):
+    
     def forward(self, *input):
         raise NotImplementedError()
 
@@ -9,27 +11,34 @@ class Module(object):
 
     def param(self):
         return []
-    
-class Variable:
-    """Trainable variable."""
-    def __init__(self, data, requires_grad=False):
-        self.data = data
-        self.grad = torch.empty_like(data)  # acumulated gradient
 
-    def zero_grad(self):
-        self.grad.zero_()
+class TanhBackward:
     
-    def update(self, eta):
-        self.data = self.data - eta * self.grad
-        
+    def __init__(self, ctx):
+        self.ctx = ctx
 
-class Tanh(Module):
-    def forward(self, x):
-        self.x = x
-        return torch.tanh(x)
-    
     def _dtanh(self, x):
         return 4 * (x.exp() + x.mul(-1).exp()).pow(-2)
+    
+    def __call__(self, dl):
+        dl = dl * self._dtanh(self.ctx.data)
+        if self.ctx.requires_grad:
+            self.ctx.grad_fn(dl)
+
+class Tanh(Module):
+
+
+    def __init__(self):
+        super(Tanh).__init__()
+        
+    
+    def forward(self, x):
+        self.x = x
+        out = torch.tanh(x.data)
+        out = Variable(out, requires_grad=x.requires_grad, is_leaf=False)
+        out.grad_fn = TanhBackward(x)
+        return out
+    
     
     def backward(self, dl_dx):
         dl_ds = dl_dx * self._dtanh(self.x)
@@ -41,44 +50,67 @@ class Tanh(Module):
     def param(self):
         return []
 
+
+class Function:
+    def __init__(self, *ctx):
+        pass
+
+
+
+class LinearBackward(Function):
+    def __init__(self, x, w, b):
+        self.x = x
+        self.w = w
+        self.b = b
+
+    def backward(self, dl_ds):
+        dl_dx = self.w.data @ dl_ds
+        self.w.grad.add_(self.x.data.view(-1, 1) @ dl_ds.view(1, -1))
+        if self.b:
+            self.b.grad.add_(dl_ds)
+        return dl_dx
+
+    def __call__(self, dl):
+        dl = self.backward(dl)
+        if self.x.requires_grad:
+            self.x.grad_fn(dl)
+
+
 class Linear(Module):
+    
     def __init__(self, in_features, out_features, bias=True):
         if bias:
-            self.b = Variable(torch.empty(out_features).normal_(0, 1e-6))
-        self.w = Variable(torch.empty(in_features, out_features).normal_(0, 1e-6))
+            self.b = Variable(torch.empty(out_features).normal_(0, 1e-6), requires_grad=True)
+        self.w = Variable(torch.empty(in_features, out_features).normal_(0, 1e-6), requires_grad=True)
         
-        #self.dl_dw = torch.empty_like(self.W)
-        #if bias:
-        #    self.bias = torch.empty(out_features)
-        #    self.bias_grad(torch.empty_like(self.bias))
-        #    self.dl_db = torch.empty_like(self.bias)
-    
-    def reset_grad():
-        self.w.grad.zero_()
-        if self.b:
-            self.b.grad.zero_()
+    #def reset_grad():  # TODO remove 
+    #    self.w.grad.zero_()
+    #    if self.b:
+    #        self.b.grad.zero_()
 
     def forward(self, x):
         self.x = x
-        out = x @ self.w.data
+        out = x.data @ self.w.data
         if self.b:
             out += self.b.data
+        # TODO check with bias requires_grad
+        out = Variable(out, requires_grad=self.w.requires_grad or x.requires_grad,
+                is_leaf=False)
+        out.grad_fn = LinearBackward(x, self.w, self.b)
         return out
 
     def __call__(self, x):
         return self.forward(x)
 
-    def backward(self, dl_ds):
-        dl_dx = self.w.data @ dl_ds
-        self.w.grad.add_(self.x.view(-1, 1) @ dl_ds.view(1, -1))
-        if self.b:
-            self.b.grad.add_(dl_ds)
-        return dl_dx
     
     def param(self):
         return [self.w, self.b]
 
+
+
 class Sequential:
+    """This class is not a real module as it doesn't necesarly require a backward function"""
+
     def __init__(self, elems):
         self.elems = elems
     
@@ -86,15 +118,16 @@ class Sequential:
         out = x
         for elem in self.elems:
             out = elem(out)
+        
         return out
 
     def __call__(self, x):
         return self.forward(x)
     
-    def backward(self, dl_dx):
-        dl = dl_dx
-        for elem in reversed(self.elems):
-            dl = elem.backward(dl)
+    #def backward(self, dl_dx):
+    #    dl = dl_dx
+    #    for elem in reversed(self.elems):
+    #        dl = elem.backward(dl)
     
     def param(self):
         p = []
