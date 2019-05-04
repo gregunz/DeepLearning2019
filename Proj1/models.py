@@ -36,10 +36,11 @@ class SimpleNN(nn.Module):
         out_right = F.relu(out_right)
         out_right = self.layer2_right(out_right)
 
-        out = torch.cat((F.relu(out_left), F.relu(out_right)), dim=1)
-        aux_out = torch.cat((F.softmax(out_left), F.softmax(out_right)), dim=1)
+        out = torch.cat((out_left, out_right), dim=1)
+        aux_out = out
             
-        out = self.final_layer(out)
+        out = F.relu(out)
+        out = self.final_layer()
         out = torch.sigmoid(out).squeeze(1)
         
         return out, aux_out
@@ -80,9 +81,10 @@ class SimpleCNN(nn.Module):
         out_left = self.cnn_forward(left)
         out_right = self.cnn_forward(right)
         
-        out = torch.cat((F.relu(out_left), F.relu(out_right)), dim=1)
-        aux_out = torch.cat((F.softmax(out_left), F.softmax(out_right)), dim=1)
-        
+        out = torch.cat((out_left, out_right), dim=1)
+        aux_out = out
+            
+        out = F.relu(out)
         # Fully convolutional #2 with sigmoid
         out = torch.sigmoid(self.fc3(out)).squeeze(1)
         
