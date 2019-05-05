@@ -1,13 +1,16 @@
-from deepy.nn import Module
+from deepy.nn import Module, Function
 from deepy.tensor import Variable
 
-class MSEBackward:
+class MSEBackward(Function):
     def __init__(self, v, t):
         self.v = v
         self.t = t
     
     def dloss(self, v, t):
         return 2 * (v.data - t.data)
+    
+    def inputs(self):
+        return [self.v, self.t]
     
     def __call__(self, dl):
         # TODO check if dl is other than 1.0 what append
@@ -18,6 +21,9 @@ class MSEBackward:
 
 
 class MSE(Module):
+    """
+    Mean Square Error loss function.
+    """
     def __init__(self):
         super(MSE, self).__init__()
     

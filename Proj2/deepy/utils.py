@@ -13,6 +13,7 @@ def graph_repr(model, X):
             raise NotImplementedError("Graph with operator of more than 1 input can't be draw for now")
         out = inputs[0]
 
+    # construction of the string
     s = "X => "
     for elem in reversed(functions):
         s += f"{elem} => "

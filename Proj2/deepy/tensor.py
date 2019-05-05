@@ -2,7 +2,17 @@ import torch
 
 
 class Variable:
-    """Trainable variable."""
+    """This class is a wrapper around a Tensor
+    
+    Params:
+        data: Tensor
+            Data of any type, it can be a weight of a network or in input to the network.
+        requires_grad: bool
+            Set to True in order to make the variable trainable (Update possible by backprop if its a leaf node)
+        is_leaf: bool
+            Leaf node of the computation graph have that property set to True.
+    
+    """
     def __init__(self, data, requires_grad=False, is_leaf=True):
         self.data = data
         self.grad = torch.empty_like(data)  # acumulated gradient

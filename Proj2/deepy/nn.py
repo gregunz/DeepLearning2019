@@ -3,14 +3,25 @@ from deepy.tensor import Variable
 
 
 class Module(object):
+    """Basis class for all Neural Network of the library"""
     
     def __init__(self, **kwargs):
         self.name = kwargs.get('name', 'Module')
 
     def forward(self, *inputs):
+        """
+        Define the forward pass for the module.
+        """
         raise NotImplementedError()
 
     def param(self):
+        """
+        Function that return all the trainable Variable of the network.
+        
+        Return:
+            params: List
+                The trainable parameters of the Module
+        """
         params = []
         for elem in self.__dict__.values():
             if isinstance(elem, Module):
@@ -24,11 +35,16 @@ class Module(object):
         return self.forward(*inputs)
 
     
-class Function:
-    def __init__(self, *ctx):
-        pass
-
+class Function(object):
+    """
+    Base class for backward pass of all module.
+    Those class have for purpuse to retain enough context in order to compute the backward pass from only the gradiant of there output.
+    """
     def inputs(self):
+        """
+        List of all the inputs of that function.
+        This is useful in order to draw the backward graph (for vizualization purposes).
+        """
         raise NotImplementedError()
 
 class TanhBackward(Function):    
@@ -36,6 +52,9 @@ class TanhBackward(Function):
         self.x = x
 
     def _dtanh(self, x):
+        """
+        Derivative of the tanh function with respect to the input x.
+        """
         return 4 * (x.exp() + x.mul(-1).exp()).pow(-2)
     
     def inputs(self):
@@ -119,9 +138,19 @@ class LinearBackward(Function):
 
 
 class Linear(Module):
-    
+    """
+    Define a fully connected layer
+    """
     def __init__(self, in_features, out_features, bias=True):
-        #self.bias = bias
+        """
+        Params:
+            in_features: int
+                Number of feature as inputs
+            out_features: int
+                Number of feature to outputs
+            bias: bool
+                When set to true in addtion to the weight, a bias is learned.
+        """
         if bias:
             self.b = Variable(torch.empty(out_features).normal_(0, 1e-6),
                               requires_grad=True)
@@ -147,7 +176,19 @@ class Linear(Module):
 
 
 class Sequential(Module):
+    """
+    Combines multiples module in a sequential manner.
+    The modules are chain one after the other and call with the output of the previous one as input.
+    """
+    
     def __init__(self, elems):
+        """
+        Params:
+            elems: List
+                List of Modules to combines.
+                The order of the element in the list defines the order of calls to the modules.
+                
+        """
         self.elems = elems
     
     def forward(self, x):
