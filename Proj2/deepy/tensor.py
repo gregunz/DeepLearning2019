@@ -28,6 +28,3 @@ class Variable:
 
         # Compute dl
         self.grad_fn(1.0)
-
-        #for module in self.prev_backward:
-        #    module.backward(dl)
