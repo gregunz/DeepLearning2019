@@ -10,16 +10,6 @@ class Variable:
         self.requires_grad = requires_grad
         self.is_leaf = is_leaf
 
-    def zero_grad(self):
-        if not self.requires_grad:
-            raise RuntimeError("This Tensor doesn't have gradient")
-        self.grad.zero_()
-    
-    def update(self, eta):
-        if not self.requires_grad:
-            raise RuntimeError("This Tensor doesn't have gradient")
-        self.data = self.data - eta * self.grad
-
     def backward(self):
         # check that data is a scalar or raise an exception
         self.grad = 1.0
