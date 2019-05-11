@@ -53,12 +53,12 @@ plot(
 plot(
     'Loss (train phase)',
     'loss_train.png',
-    torch.cat([torch.mean(acc['test'], dim=0, keepdim=True) for acc in accuracies])
+    torch.cat([torch.loss(loss['train'], dim=0, keepdim=True) for loss in losses])
 )
 
 # Plotting loss during the test phase
 plot(
     'Loss (test phase)',
     'loss_test.png',
-    torch.cat([torch.mean(acc['test'], dim=0, keepdim=True) for acc in accuracies])
+    torch.cat([torch.loss(loss['test'], dim=0, keepdim=True) for loss in losses])
 )
