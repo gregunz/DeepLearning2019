@@ -60,23 +60,23 @@ def load_data(cifar = None, one_hot_labels = False, normalize = False, flatten =
         cifar_train_set = datasets.CIFAR10(data_dir + '/cifar10/', train = True, download = True)
         cifar_test_set = datasets.CIFAR10(data_dir + '/cifar10/', train = False, download = True)
 
-        train_input = torch.from_numpy(cifar_train_set.train_data)
+        train_input = torch.from_numpy(cifar_train_set.data)
         train_input = train_input.transpose(3, 1).transpose(2, 3).float()
-        train_target = torch.tensor(cifar_train_set.train_labels, dtype = torch.int64)
+        train_target = torch.tensor(cifar_train_set.data, dtype = torch.int64)
 
-        test_input = torch.from_numpy(cifar_test_set.test_data).float()
+        test_input = torch.from_numpy(cifar_test_set.targets).float()
         test_input = test_input.transpose(3, 1).transpose(2, 3).float()
-        test_target = torch.tensor(cifar_test_set.test_labels, dtype = torch.int64)
+        test_target = torch.tensor(cifar_test_set.targets, dtype = torch.int64)
 
     else:
         print('* Using MNIST')
         mnist_train_set = datasets.MNIST(data_dir + '/mnist/', train = True, download = True)
         mnist_test_set = datasets.MNIST(data_dir + '/mnist/', train = False, download = True)
 
-        train_input = mnist_train_set.train_data.view(-1, 1, 28, 28).float()
-        train_target = mnist_train_set.train_labels
-        test_input = mnist_test_set.test_data.view(-1, 1, 28, 28).float()
-        test_target = mnist_test_set.test_labels
+        train_input = mnist_train_set.data.view(-1, 1, 28, 28).float()
+        train_target = mnist_train_set.targets
+        test_input = mnist_test_set.data.view(-1, 1, 28, 28).float()
+        test_target = mnist_test_set.targets
 
     if flatten:
         train_input = train_input.clone().reshape(train_input.size(0), -1)
@@ -134,12 +134,12 @@ def generate_pair_sets(nb):
             data_dir = './data'
 
     train_set = datasets.MNIST(data_dir + '/mnist/', train = True, download = True)
-    train_input = train_set.train_data.view(-1, 1, 28, 28).float()
-    train_target = train_set.train_labels
+    train_input = train_set.data.view(-1, 1, 28, 28).float()
+    train_target = train_set.targets
 
     test_set = datasets.MNIST(data_dir + '/mnist/', train = False, download = True)
-    test_input = test_set.test_data.view(-1, 1, 28, 28).float()
-    test_target = test_set.test_labels
+    test_input = test_set.data.view(-1, 1, 28, 28).float()
+    test_target = test_set.targets
 
     return mnist_to_pairs(nb, train_input, train_target) + \
            mnist_to_pairs(nb, test_input, test_target)
