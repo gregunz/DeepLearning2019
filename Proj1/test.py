@@ -10,7 +10,7 @@ torch.manual_seed(SEED)
 
 
 def print_training(model_name, with_aux):
-    s = "" if with_aux else "out"
+    s = '' if with_aux else 'out'
     print(f'Training "{model_name}" model with{s} auxiliary training loss')
 
 
@@ -25,8 +25,8 @@ print_training('Convolutional (CNN)', with_aux=False)
 loss_cnn, acc_cnn = evaluate_model(SimpleCNN, num_epochs=NUM_EPOCHS, num_rounds=NUM_ROUNDS)
 
 print_training('Convolutional (CNN_aux)', with_aux=True)
-loss_cnn_aux, acc_cnn_aux = evaluate_model(SimpleCNN, num_epochs=NUM_EPOCHS, num_rounds=NUM_ROUNDS,
-                                           with_aux_classes=True)
+loss_cnn_aux, acc_cnn_aux = \
+    evaluate_model(SimpleCNN, num_epochs=NUM_EPOCHS, num_rounds=NUM_ROUNDS, with_aux_classes=True)
 
 # Statistics & Plots
 accuracies = [acc_fc, acc_fc_aux, acc_cnn, acc_cnn_aux]
@@ -53,12 +53,12 @@ plot(
 plot(
     'Loss (train phase)',
     'loss_train.png',
-    torch.cat([torch.loss(loss['train'], dim=0, keepdim=True) for loss in losses])
+    torch.cat([torch.mean(loss['train'], dim=0, keepdim=True) for loss in losses])
 )
 
 # Plotting loss during the test phase
 plot(
     'Loss (test phase)',
     'loss_test.png',
-    torch.cat([torch.loss(loss['test'], dim=0, keepdim=True) for loss in losses])
+    torch.cat([torch.mean(loss['test'], dim=0, keepdim=True) for loss in losses])
 )

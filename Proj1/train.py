@@ -20,7 +20,7 @@ def train_model(dataloaders, dataset_sizes, model, criterion, optimizer, schedul
     :param num_epochs: int, number of epoch
     :param verbose: bool, whether to print details such as loss or training duration
     :param aux_criterion: function, criterion to compute the auxilary loss
-    :return: tuple(model, torch.Tensor, torch.Tensor), the model trained and the loss + the accuracy
+    :return: tuple(model, torch.Tensor, torch.Tensor), the model trained and the loss and the accuracy
     """
     since = time.time()
 
