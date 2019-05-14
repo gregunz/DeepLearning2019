@@ -1,5 +1,7 @@
+import math
+
 import torch
-from deepy.tensor import Variable
+from deepy.tensor import Variable, Parameter
 
 
 class Module(object):
@@ -26,9 +28,8 @@ class Module(object):
         for elem in self.__dict__.values():
             if isinstance(elem, Module):
                 params += elem.param()
-            if isinstance(elem, Variable):
-                if elem.requires_grad and elem.is_leaf:
-                    params.append(elem)
+            if isinstance(elem, Parameter):
+                params.append(elem)
         return params
 
     def __call__(self, *inputs):
@@ -141,7 +142,8 @@ class Linear(Module):
     """
     Define a fully connected layer
     """
-    def __init__(self, in_features, out_features, bias=True):
+    def __init__(self, in_features, out_features, bias=True,
+                 weight_init='uniform', bias_init='uniform'):
         """
         Params:
             in_features: int
@@ -151,11 +153,22 @@ class Linear(Module):
             bias: bool
                 When set to true in addtion to the weight, a bias is learned.
         """
+
+
+        data = torch.empty(in_features, out_features)
+
+        stdv = 1. / math.sqrt(data.size(1))
+        
+        if weight_init == 'uniform':
+            data.uniform_(-stdv, stdv)
+
+        self.w = Parameter(data.normal_(0, 1e-6),
+                           requires_grad=True)
         if bias:
-            self.b = Variable(torch.empty(out_features).normal_(0, 1e-6),
-                              requires_grad=True)
-        self.w = Variable(torch.empty(in_features, out_features).normal_(0, 1e-6),
-                          requires_grad=True)
+            bias_data = torch.empty(out_features)
+            if bias_init == 'uniform':
+                bias_data.uniform_(-stdv, stdv)
+            self.b = Parameter(bias_data, requires_grad=True)
 
     def forward(self, x):
         self.x = x

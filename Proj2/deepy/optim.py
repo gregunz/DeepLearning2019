@@ -29,10 +29,11 @@ class SGD:
         Perform a step of the SGD algorithm by updating the tracked weights
         """
         for var in self.params:
-            grad = var.grad
+            if var.requires_grad:
+                grad = var.grad
 
-            # L2 regularization
-            if self.weight_decay > 0:
-                grad.add_(2 * self.weight_decay * var.data)
+                # L2 regularization
+                if self.weight_decay > 0:
+                    grad.add_(2 * self.weight_decay * var.data)
 
-            var.data = var.data - self.lr * grad
+                var.data = var.data - self.lr * grad

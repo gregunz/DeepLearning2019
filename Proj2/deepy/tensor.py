@@ -28,3 +28,10 @@ class Variable:
 
         # Compute dl
         self.grad_fn(1.0)
+
+
+class Parameter(Variable):
+    """
+    A special Variable that when used inside a deepy.nn.Module is automatically added to the parameter list of that module.
+    """
+    pass
