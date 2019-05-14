@@ -35,11 +35,6 @@ def evaluate_model(model_callable, num_epochs=20, num_rounds=10, verbose=True, w
     (training and testing)
     """
     since = time.time()
-
-    model = model_callable()
-    if verbose:
-        print('Model #parameters = {}'.format(sum(p.numel() for p in model.parameters())))
-    model_optim = optim.Adam(model.parameters(), lr=0.001, betas=(0.9, 0.999))
     criterion = nn.BCELoss()
     aux_criterion = None
     if with_aux_classes:
@@ -49,7 +44,14 @@ def evaluate_model(model_callable, num_epochs=20, num_rounds=10, verbose=True, w
     losses = {'train': train_losses, 'test': torch.empty_like(train_losses)}
     accuracies = {'train': torch.empty_like(train_losses), 'test': torch.empty_like(train_losses)}
 
+    print_once = True
     for round_idx in range(num_rounds):
+        model = model_callable()
+        model_optim = optim.Adam(model.parameters(), lr=0.001, betas=(0.9, 0.999))
+        if verbose and print_once:
+            print_once = False
+            print('Model #parameters = {}'.format(sum(p.numel() for p in model.parameters())))
+
         train_input, train_target, train_classes, \
         test_input, test_target, test_classes = dlc.generate_pair_sets(N)
         if with_aux_classes:
