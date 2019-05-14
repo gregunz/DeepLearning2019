@@ -1,14 +1,13 @@
 import time
 
 import torch
-import torch.optim as optim
 import torch.nn as nn
+import torch.optim as optim
 import torch.utils.data as utils
+from torchvision import datasets
 
-import dlc_practical_prologue as dlc
-
+from constants import N, AUX_LOSS_FACTOR
 from train import train_model
-from constants import N
 
 
 def to_dataloader(X, Y, batch_size=32):
@@ -23,7 +22,8 @@ def to_dataloader(X, Y, batch_size=32):
     return utils.DataLoader(dset, batch_size=batch_size, shuffle=True)
 
 
-def evaluate_model(model_callable, num_epochs=20, num_rounds=10, verbose=True, with_aux_classes=False):
+def evaluate_model(model_callable, num_epochs=20, num_rounds=10, verbose=True, with_aux_classes=False,
+                   aux_loss_factor=AUX_LOSS_FACTOR):
     """
     Evaluate the model on mnist data from dlc_practical_prologue.generate_pair_sets()
     :param model_callable: function, create and initialize the model
@@ -31,6 +31,7 @@ def evaluate_model(model_callable, num_epochs=20, num_rounds=10, verbose=True, w
     :param num_rounds: int, number of the model is created, train and tested using new datasets
     :param verbose: bool, whether to print information about the training or not
     :param with_aux_classes: bool, whether the model should make use of auxiliary available classes.
+    :param aux_loss_factor: float, factor associated with the auxiliary loss
     :return: tuple(dict, dict), losses and accuracies over each round and each epoch for each phase
     (training and testing)
     """
@@ -53,16 +54,17 @@ def evaluate_model(model_callable, num_epochs=20, num_rounds=10, verbose=True, w
             print('Model #parameters = {}'.format(sum(p.numel() for p in model.parameters())))
 
         train_input, train_target, train_classes, \
-        test_input, test_target, test_classes = dlc.generate_pair_sets(N)
+        test_input, test_target, test_classes = generate_pair_sets(N)
         if with_aux_classes:
             train_target = torch.cat([train_target.unsqueeze(1), train_classes], dim=1)
             test_target = torch.cat([test_target.unsqueeze(1), test_classes], dim=1)
-        dataloaders = {'train': to_dataloader(train_input, train_target), 'test': to_dataloader(test_input, test_target)}
+        dataloaders = {'train': to_dataloader(train_input, train_target),
+                       'test': to_dataloader(test_input, test_target)}
         dataset_sizes = {phase: len(data) for phase, data in dataloaders.items()}
 
         _, round_losses, round_accuracies = \
             train_model(dataloaders, dataset_sizes, model, criterion, model_optim, num_epochs=num_epochs,
-                        aux_criterion=aux_criterion)
+                        aux_criterion=aux_criterion, aux_loss_factor=aux_loss_factor)
 
         for phase in ['train', 'test']:
             losses[phase][round_idx] = torch.tensor(round_losses[phase])
@@ -77,3 +79,35 @@ def evaluate_model(model_callable, num_epochs=20, num_rounds=10, verbose=True, w
         print()
 
     return losses, accuracies
+
+
+
+def mnist_to_pairs(nb, input, target):
+    """
+    Code from dlc_practical_prologue.py
+    """
+    input = torch.functional.F.avg_pool2d(input, kernel_size=2)
+    a = torch.randperm(input.size(0))
+    a = a[:2 * nb].view(nb, 2)
+    input = torch.cat((input[a[:, 0]], input[a[:, 1]]), 1)
+    classes = target[a]
+    target = (classes[:, 0] <= classes[:, 1]).long()
+    return input, target, classes
+
+
+def generate_pair_sets(nb):
+    """
+    Code from dlc_practical_prologue.py
+    """
+    data_dir = '../data'
+
+    train_set = datasets.MNIST(data_dir + '/mnist/', train=True, download=True)
+    train_input = train_set.data.view(-1, 1, 28, 28).float()
+    train_target = train_set.targets
+
+    test_set = datasets.MNIST(data_dir + '/mnist/', train=False, download=True)
+    test_input = test_set.data.view(-1, 1, 28, 28).float()
+    test_target = test_set.targets
+
+    return mnist_to_pairs(nb, train_input, train_target) + \
+           mnist_to_pairs(nb, test_input, test_target)

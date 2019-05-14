@@ -1,37 +1,58 @@
+import argparse
+
 import torch
 
-from constants import NUM_EPOCHS, NUM_ROUNDS, SEED
+from constants import NUM_EPOCHS, NUM_ROUNDS, SEED, AUX_LOSS_FACTOR
 from evaluation import evaluate_model
 from models import SimpleNN, SimpleCNN
 from plot import plot_from_tensors
 
-torch.manual_seed(SEED)
+parser = argparse.ArgumentParser()
+parser.add_argument('--models', action="store", dest="models", type=str, default='1234')
+parser.add_argument('--epochs', action="store", dest="epochs", type=int, default=NUM_EPOCHS)
+parser.add_argument('--rounds', action="store", dest="rounds", type=int, default=NUM_ROUNDS)
+parser.add_argument('--seed', action="store", dest="seed", type=int, default=SEED)
+parser.add_argument('--aux', action="store", dest="aux_loss_factor", type=float, default=AUX_LOSS_FACTOR)
+args = parser.parse_args()
+
+accuracies = []
+losses = []
+model_names = []
 
 
-def print_training(model_name, with_aux):
+def evaluate(model, shortname, fullname, with_aux):
+    shortname = shortname + ('_aux' if with_aux else '')
     s = '' if with_aux else 'out'
-    print(f'Training "{model_name}" model with{s} auxiliary training loss')
+    print(f'Training "{fullname} ({shortname})" model with{s} auxiliary training loss')
+
+    torch.manual_seed(args.seed)
+    loss, acc = evaluate_model(
+        model,
+        num_epochs=args.epochs,
+        num_rounds=args.rounds,
+        with_aux_classes=with_aux,
+        aux_loss_factor=args.aux_loss_factor
+    )
+    losses.append(loss)
+    accuracies.append(acc)
+    model_names.append(shortname)
 
 
-# Models evaluation
-print_training('Fully Connected (FC)', with_aux=False)
-loss_fc, acc_fc = evaluate_model(SimpleNN, num_epochs=NUM_EPOCHS, num_rounds=NUM_ROUNDS)
+def main():
+    # Models evaluation
+    if args.models is None or '1' in args.models:
+        evaluate(SimpleNN, 'FC', 'Fully Connected', with_aux=False)
+    if args.models is None or '2' in args.models:
+        evaluate(SimpleNN, 'FC', 'Fully Connected', with_aux=True)
+    if args.models is None or '3' in args.models:
+        evaluate(SimpleCNN, 'CNN', 'Convolutional', with_aux=False)
+    if args.models is None or '4' in args.models:
+        evaluate(SimpleCNN, 'CNN', 'Convolutional', with_aux=True)
 
-print_training('Fully Connected (FC_aux)', with_aux=True)
-loss_fc_aux, acc_fc_aux = evaluate_model(SimpleNN, num_epochs=NUM_EPOCHS, num_rounds=NUM_ROUNDS, with_aux_classes=True)
+    # Plotting results
+    if len(accuracies) > 0:
+        plot_from_tensors(accuracies, losses, model_names, save_df=True)
 
 
-print_training('Convolutional (CNN)', with_aux=False)
-loss_cnn, acc_cnn = evaluate_model(SimpleCNN, num_epochs=NUM_EPOCHS, num_rounds=NUM_ROUNDS)
-
-print_training('Convolutional (CNN_aux)', with_aux=True)
-loss_cnn_aux, acc_cnn_aux = \
-    evaluate_model(SimpleCNN, num_epochs=NUM_EPOCHS, num_rounds=NUM_ROUNDS, with_aux_classes=True)
-
-
-# Statistics & Plots
-accuracies = [acc_fc, acc_fc_aux, acc_cnn, acc_cnn_aux]
-losses = [loss_fc, loss_fc_aux, loss_cnn, loss_cnn_aux]
-names = ['FC', 'FC_aux', 'CNN', 'CNN_aux']
-
-plot_from_tensors(accuracies, losses, names, save_df=True)
+if __name__ == '__main__':
+    main()

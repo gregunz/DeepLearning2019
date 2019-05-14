@@ -1,10 +1,8 @@
 import pickle
+
 import pandas as pd
 import seaborn as sns
-
 from matplotlib import pyplot as plt
-
-MODEL_NAMES = ['FC', 'FC_aux', 'CNN', 'CNN_aux']
 
 
 def plot_from_tensors(accuracies, losses, model_names, save_df=True):
