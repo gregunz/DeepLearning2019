@@ -34,4 +34,7 @@ for i in tqdm(range(1000)):
 
 
 pred = model(test_input)
-print(accuracy(pred.data, test_target.argmax(1)))
+print(f"Accuracy on test set: {accuracy(pred.data, test_target.argmax(1))}")
+
+pred = model(train_input)
+print(f"Accuracy on train set: {accuracy(pred.data, train_target.argmax(1))}")
