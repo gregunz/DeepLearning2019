@@ -19,3 +19,7 @@ def graph_repr(model, X):
         s += f"{elem} => "
     s += "y"
     return s
+
+
+def accuracy(pred, target):
+    return (pred.argmax(1) == target).type(torch.float).mean()

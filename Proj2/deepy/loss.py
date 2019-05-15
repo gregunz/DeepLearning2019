@@ -13,7 +13,6 @@ class MSEBackward(Function):
         return [self.v, self.t]
     
     def __call__(self, dl):
-        # TODO check if dl is other than 1.0 what append
         dl = self.dloss(self.v.data, self.t.data)
 
         if self.v.requires_grad:
@@ -28,9 +27,7 @@ class MSE(Module):
         super(MSE, self).__init__()
     
     def loss(self, v, t):
-        x = (t.data - v.data)
-        x = x.unsqueeze(1)
-        x = x.t() @ x
+        x = (t.data - v.data).pow(2).mean(1).sum()
         out = Variable(x, requires_grad=t.requires_grad or v.requires_grad, is_leaf=False)
         out.grad_fn = MSEBackward(v, t) 
         return out

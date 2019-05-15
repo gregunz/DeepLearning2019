@@ -118,15 +118,16 @@ class LinearBackward(Function):
         self.x = x
         self.w = w
         self.b = b
+        self.batch_size = x.data.size(0)
 
     def inputs(self):
         return [self.x]
 
     def backward(self, dl_ds):
-        dl_dx = self.w.data @ dl_ds
-        self.w.grad.add_(self.x.data.view(-1, 1) @ dl_ds.view(1, -1))
+        dl_dx = (self.w.data @ dl_ds.t()).t()
+        self.w.grad.add_(self.x.data.permute(1,0).view(-1, self.batch_size) @ dl_ds.view(self.batch_size, -1))
         if self.b:
-            self.b.grad.add_(dl_ds)
+            self.b.grad.add_(dl_ds.sum(0))
         return dl_dx
 
     def __call__(self, dl):
