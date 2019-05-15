@@ -48,7 +48,7 @@ def evaluate_model(model_callable, num_epochs=20, num_rounds=10, verbose=True, w
     print_once = True
     for round_idx in range(num_rounds):
         model = model_callable()
-        model_optim = optim.Adam(model.parameters(), lr=0.001, betas=(0.9, 0.999))
+        model_optim = optim.Adam(model.parameters(), lr=0.001)
         if verbose and print_once:
             print_once = False
             print('Model #parameters = {}'.format(sum(p.numel() for p in model.parameters())))

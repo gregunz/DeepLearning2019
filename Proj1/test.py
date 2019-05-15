@@ -4,7 +4,7 @@ import torch
 
 from constants import NUM_EPOCHS, NUM_ROUNDS, SEED, AUX_LOSS_FACTOR
 from evaluation import evaluate_model
-from models import SimpleNN, SimpleCNN
+from models import SimpleFC, SimpleCNN
 from plot import plot_from_tensors
 
 parser = argparse.ArgumentParser()
@@ -41,9 +41,9 @@ def evaluate(model, shortname, fullname, with_aux):
 def main():
     # Models evaluation
     if args.models is None or '1' in args.models:
-        evaluate(SimpleNN, 'FC', 'Fully Connected', with_aux=False)
+        evaluate(SimpleFC, 'FC', 'Fully Connected', with_aux=False)
     if args.models is None or '2' in args.models:
-        evaluate(SimpleNN, 'FC', 'Fully Connected', with_aux=True)
+        evaluate(SimpleFC, 'FC', 'Fully Connected', with_aux=True)
     if args.models is None or '3' in args.models:
         evaluate(SimpleCNN, 'CNN', 'Convolutional', with_aux=False)
     if args.models is None or '4' in args.models:
