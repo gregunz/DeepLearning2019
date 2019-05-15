@@ -14,3 +14,6 @@ def gen_train_test():
     train_input, train_target = generate_disc_set(DATASET_SIZE)
     test_input, test_target = generate_disc_set(DATASET_SIZE)
     return train_input, train_target, test_input, test_target
+
+def transform_target(target):
+    return 2*(torch.stack([target.type(torch.ByteTensor), ~target.type(torch.ByteTensor)], 1).type(torch.float)) - 1
