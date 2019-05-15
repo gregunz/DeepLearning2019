@@ -1,6 +1,6 @@
 # How to run the code
 
-## Dependencies
+## Dependencies
 Following libraries are required:
 ```
 matplotlib
