@@ -20,6 +20,7 @@ losses = []
 model_names = []
 
 
+#  Evaluation method for each model with some fancy prints and the accumulations of the statistics
 def evaluate(model, shortname, fullname, with_aux):
     shortname = shortname + ('_aux' if with_aux else '')
     s = '' if with_aux else 'out'
