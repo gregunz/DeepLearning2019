@@ -1,10 +1,8 @@
 import pickle
+
 import pandas as pd
 import seaborn as sns
-
 from matplotlib import pyplot as plt
-
-MODEL_NAMES = ['FC', 'FC_aux', 'CNN', 'CNN_aux']
 
 
 def plot_from_tensors(accuracies, losses, model_names, save_df=True):
@@ -30,12 +28,12 @@ def plot_from_tensors(accuracies, losses, model_names, save_df=True):
     plot_stats(stats_df)
 
 
-def plot_stats(stats_df=None):
+def plot_stats(stats_df=None, ext='png'):
     if stats_df is None:
         stats_df = pickle.load(open('stats_df.p', mode='rb'))
 
     def save_plot(stats, phase):
-        filename = f'{stats}_{phase}.png'
+        filename = f'{stats}_{phase}.{ext}'
         title = f'{stats.capitalize()} ({phase})'
         plt.figure(figsize=(16, 9))
         plt.title(title)

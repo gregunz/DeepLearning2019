@@ -5,43 +5,33 @@ import torch.nn.functional as F
 from constants import IMAGE_HEIGHT, IMAGE_WIDTH
 
 
-class SimpleNN(nn.Module):
+class SimpleFC(nn.Module):
 
-    def __init__(self, r_l_same_net=False):
-        super(SimpleNN, self).__init__()
+    def __init__(self):
+        super(SimpleFC, self).__init__()
 
-        self.layer_left = nn.Linear(IMAGE_HEIGHT * IMAGE_WIDTH, 10)
-        self.layer2_left = nn.Linear(10, 10)
+        self.layer1 = nn.Linear(IMAGE_HEIGHT * IMAGE_WIDTH, 10)
+        self.layer2 = nn.Linear(10, 10)
+        self.layer3 = nn.Linear(20, 1)
 
-        if r_l_same_net:
-            self.layer_right = self.layer_left
-            self.layer2_right = self.layer2_left
-        else:
-            self.layer_right = nn.Linear(IMAGE_HEIGHT * IMAGE_WIDTH, 10)
-            self.layer2_right = nn.Linear(10, 10)
-
-        self.final_layer = nn.Linear(20, 1)
+    def fc_forward(self, x):
+        x = x.view(x.shape[0], -1)
+        x = self.layer1(x)
+        x = F.relu(x)
+        x = self.layer2(x)
+        return x
 
     def forward(self, x):
         left, right = torch.chunk(x, chunks=2, dim=1)
-        left = left.view(x.shape[0], -1)
-        right = right.view(x.shape[0], -1)
 
-        # left image
-        out_left = self.layer_left(left)
-        out_left = F.relu(out_left)
-        out_left = self.layer2_left(out_left)
-
-        # right image
-        out_right = self.layer_right(right)
-        out_right = F.relu(out_right)
-        out_right = self.layer2_right(out_right)
+        out_left = self.fc_forward(left)
+        out_right = self.fc_forward(right)
 
         out = torch.cat((out_left, out_right), dim=1)
         aux_out = out
 
         out = F.relu(out)
-        out = self.final_layer(out)
+        out = self.layer3(out)
         out = torch.sigmoid(out).squeeze(1)
 
         return out, aux_out
@@ -52,8 +42,8 @@ class SimpleCNN(nn.Module):
         super(SimpleCNN, self).__init__()
 
         self.conv1 = nn.Conv2d(1, 16, 3)
-        self.conv2 = nn.Conv2d(16, 16, 3)
-        self.fc1 = nn.Linear(16 * 2 * 2, 10)
+        self.conv2 = nn.Conv2d(16, 8, 3)
+        self.fc1 = nn.Linear(8 * 2 * 2, 10)
         self.fc2 = nn.Linear(10, 10)
         self.fc3 = nn.Linear(20, 1)
 

@@ -1,13 +1,14 @@
-import time
-import sys
 import copy
+import sys
+import time
+
 import torch
 
 from constants import AUX_LOSS_FACTOR
 
 
 def train_model(dataloaders, dataset_sizes, model, criterion, optimizer, scheduler=None, writer=None, num_epochs=25,
-                verbose=False, aux_criterion=None):
+                verbose=False, aux_criterion=None, aux_loss_factor=AUX_LOSS_FACTOR):
     """
     Train a model a number of epoch and keep weights of the best performing one (smallest validation loss)
     :param dataloaders: dict, dataloader for each phase
@@ -20,6 +21,7 @@ def train_model(dataloaders, dataset_sizes, model, criterion, optimizer, schedul
     :param num_epochs: int, number of epoch
     :param verbose: bool, whether to print details such as loss or training duration
     :param aux_criterion: function, criterion to compute the auxilary loss
+    :param aux_loss_factor: float, factor associated with the auxiliary loss
     :return: tuple(model, torch.Tensor, torch.Tensor), the model trained and the loss and the accuracy
     """
     since = time.time()
@@ -61,8 +63,8 @@ def train_model(dataloaders, dataset_sizes, model, criterion, optimizer, schedul
                         # in order to be able to compare models more easily
                         loss_true = loss.clone().item()
                         if aux_criterion is not None:
-                            loss += aux_criterion(aux_outputs[:, :10], aux_labels[:, 0]) * AUX_LOSS_FACTOR
-                            loss += aux_criterion(aux_outputs[:, 10:], aux_labels[:, 1]) * AUX_LOSS_FACTOR
+                            loss += aux_criterion(aux_outputs[:, :10], aux_labels[:, 0]) * aux_loss_factor
+                            loss += aux_criterion(aux_outputs[:, 10:], aux_labels[:, 1]) * aux_loss_factor
 
                         # backward + optimize only if in training phase
                         if phase == 'train':
