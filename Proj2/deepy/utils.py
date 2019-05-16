@@ -1,6 +1,3 @@
-import torch
-
-
 def graph_repr(model, X):
     """
     Return a string representation of the backward graph.
@@ -24,4 +21,4 @@ def graph_repr(model, X):
 
 
 def accuracy(pred, target):
-    return (pred.argmax(1) == target).type(torch.float).mean()
+    return (pred == target).float().mean()
