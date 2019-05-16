@@ -26,7 +26,7 @@ class MSE(Module):
     """
 
     def __init__(self):
-        super(MSE, self).__init__()
+        super().__init__()
 
     def loss(self, v, t):
         x = (t.data - v.data).pow(2).mean(1).sum()

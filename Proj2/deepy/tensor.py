@@ -15,7 +15,7 @@ class Variable:
     def __init__(self, data, requires_grad=False, is_leaf=True):
         self.data = data
         if is_leaf:
-            self.grad = torch.empty_like(data)  # acumulated gradient
+            self.grad = torch.empty_like(data)  # accumulated gradient
         else:
             self.grad = None
         self.grad_fn = None  # Operation which created that variable

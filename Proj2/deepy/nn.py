@@ -19,8 +19,8 @@ class Module(object):
 
     def parameters(self):
         """
-        Function that return all the trainable Variable of the network.
-        
+        Function that return all the trainable Variables of the network.
+
         Return:
             params: List
                 The trainable parameters of the Module
@@ -40,13 +40,14 @@ class Module(object):
 class Function(object):
     """
     Base class for backward pass of all module.
-    Those class have for purpuse to retain enough context in order to compute the backward pass from only the gradiant of there output.
+    Those class have for purpose to retain enough context in order to
+    compute the backward pass from only the gradient of there output.
     """
 
     def inputs(self):
         """
         List of all the inputs of that function.
-        This is useful in order to draw the backward graph (for vizualization purposes).
+        This is useful in order to draw the backward graph (for visualisation purpose).
         """
         raise NotImplementedError()
 
@@ -75,10 +76,9 @@ class TanhBackward(Function):
 
 class Tanh(Module):
     def __init__(self):
-        super(Tanh).__init__()
+        super().__init__()
 
     def forward(self, x):
-        self.x = x
         out = torch.tanh(x.data)
         out = Variable(out, requires_grad=x.requires_grad, is_leaf=False)
         out.grad_fn = TanhBackward(x)
@@ -110,7 +110,6 @@ class ReluBackward(Function):
 
 class Relu(Module):
     def forward(self, x):
-        self.x = x  # WARNING this tensor should not appear in param
         out = torch.relu(x.data)
         out = Variable(out, requires_grad=x.requires_grad, is_leaf=False)
         out.grad_fn = ReluBackward(x)
@@ -148,8 +147,7 @@ class Linear(Module):
     Define a fully connected layer
     """
 
-    def __init__(self, in_features, out_features, bias=True,
-                 weight_init='uniform', bias_init='uniform'):
+    def __init__(self, in_features, out_features, bias=True, weight_init='uniform', bias_init='uniform', **kwargs):
         """
         Params:
             in_features: int
@@ -159,7 +157,7 @@ class Linear(Module):
             bias: bool
                 When set to true in addtion to the weight, a bias is learned.
         """
-
+        super().__init__(**kwargs)
         data = torch.empty(in_features, out_features)
 
         stdv = 1. / math.sqrt(data.size(1))
