@@ -35,6 +35,14 @@ class MSE(Module):
         return out
 
     def forward(self, x, targets):
+        """
+        Param:
+            x: Variable
+                Predicted value of shape [batch, nb_class]
+            targets: Variable
+                Target value of shape [batch, nb_class]
+
+        """
         return self.loss(x, targets)
 
     def __call__(self, inputs, targets):
