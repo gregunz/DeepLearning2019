@@ -6,7 +6,7 @@ from deepy.tensor import Variable, Parameter
 
 
 class Module(object):
-    """Basis class for all Neural Network of the library"""
+    """Basis class for all Neural Networks of the library"""
 
     def __init__(self, **kwargs):
         self.name = kwargs.get('name', 'Module')
@@ -17,7 +17,7 @@ class Module(object):
         """
         raise NotImplementedError()
 
-    def param(self):
+    def parameters(self):
         """
         Function that return all the trainable Variable of the network.
         
@@ -28,7 +28,7 @@ class Module(object):
         params = []
         for elem in self.__dict__.values():
             if isinstance(elem, Module):
-                params += elem.param()
+                params += elem.parameters()
             if isinstance(elem, Parameter):
                 params.append(elem)
         return params
@@ -84,7 +84,7 @@ class Tanh(Module):
         out.grad_fn = TanhBackward(x)
         return out
 
-    def param(self):
+    def parameters(self):
         return []
 
 
@@ -215,8 +215,8 @@ class Sequential(Module):
             out = elem(out)
         return out
 
-    def param(self):
+    def parameters(self):
         p = []
         for elem in self.elems:
-            p += elem.param()
+            p += elem.parameters()
         return p
