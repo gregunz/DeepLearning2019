@@ -75,9 +75,6 @@ class TanhBackward(Function):
 
 
 class Tanh(Module):
-    def __init__(self):
-        super().__init__()
-
     def forward(self, x):
         out = torch.tanh(x.data)
         out = Variable(out, requires_grad=x.requires_grad, is_leaf=False)
@@ -89,7 +86,6 @@ class Tanh(Module):
 
 
 class ReluBackward(Function):
-
     def __init__(self, x):
         self.x = x
 
