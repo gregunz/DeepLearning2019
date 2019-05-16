@@ -1,12 +1,13 @@
 import math
 
 import torch
+
 from deepy.tensor import Variable, Parameter
 
 
 class Module(object):
     """Basis class for all Neural Network of the library"""
-    
+
     def __init__(self, **kwargs):
         self.name = kwargs.get('name', 'Module')
 
@@ -35,12 +36,13 @@ class Module(object):
     def __call__(self, *inputs):
         return self.forward(*inputs)
 
-    
+
 class Function(object):
     """
     Base class for backward pass of all module.
     Those class have for purpuse to retain enough context in order to compute the backward pass from only the gradiant of there output.
     """
+
     def inputs(self):
         """
         List of all the inputs of that function.
@@ -48,7 +50,8 @@ class Function(object):
         """
         raise NotImplementedError()
 
-class TanhBackward(Function):    
+
+class TanhBackward(Function):
     def __init__(self, x):
         self.x = x
 
@@ -57,15 +60,15 @@ class TanhBackward(Function):
         Derivative of the tanh function with respect to the input x.
         """
         return 4 * (x.exp() + x.mul(-1).exp()).pow(-2)
-    
+
     def inputs(self):
         return [self.x]
-    
+
     def __call__(self, dl):
         dl = dl * self._dtanh(self.x.data)
         if self.x.requires_grad:
             self.x.grad_fn(dl)
-            
+
     def __repr__(self):
         return "Tanh()"
 
@@ -73,7 +76,7 @@ class TanhBackward(Function):
 class Tanh(Module):
     def __init__(self):
         super(Tanh).__init__()
-         
+
     def forward(self, x):
         self.x = x
         out = torch.tanh(x.data)
@@ -83,26 +86,27 @@ class Tanh(Module):
 
     def param(self):
         return []
-    
+
 
 class ReluBackward(Function):
-    
+
     def __init__(self, x):
         self.x = x
 
     def _drelu(self, x):
         return (x > 0).type(torch.float)
-    
+
     def inputs(self):
         return [self.x]
-    
+
     def __call__(self, dl):
         dl = dl * self._drelu(self.x.data)
         if self.x.requires_grad:
             self.x.grad_fn(dl)
-    
+
     def __repr__(self):
         return "Relu()"
+
 
 class Relu(Module):
     def forward(self, x):
@@ -125,7 +129,7 @@ class LinearBackward(Function):
 
     def backward(self, dl_ds):
         dl_dx = (self.w.data @ dl_ds.t()).t()
-        self.w.grad.add_(self.x.data.permute(1,0).view(-1, self.batch_size) @ dl_ds.view(self.batch_size, -1))
+        self.w.grad.add_(self.x.data.permute(1, 0).view(-1, self.batch_size) @ dl_ds.view(self.batch_size, -1))
         if self.b:
             self.b.grad.add_(dl_ds.sum(0))
         return dl_dx
@@ -134,7 +138,7 @@ class LinearBackward(Function):
         dl = self.backward(dl)
         if self.x.requires_grad:
             self.x.grad_fn(dl)
-    
+
     def __repr__(self):
         return f"Linear({self.w.data.shape[0]}, {self.w.data.shape[1]})"
 
@@ -143,6 +147,7 @@ class Linear(Module):
     """
     Define a fully connected layer
     """
+
     def __init__(self, in_features, out_features, bias=True,
                  weight_init='uniform', bias_init='uniform'):
         """
@@ -155,11 +160,10 @@ class Linear(Module):
                 When set to true in addtion to the weight, a bias is learned.
         """
 
-
         data = torch.empty(in_features, out_features)
 
         stdv = 1. / math.sqrt(data.size(1))
-        
+
         if weight_init == 'uniform':
             data.uniform_(-stdv, stdv)
 
@@ -178,11 +182,11 @@ class Linear(Module):
             out += self.b.data
         # TODO check with bias requires_grad
         out = Variable(out, requires_grad=self.w.requires_grad or x.requires_grad,
-                is_leaf=False)
+                       is_leaf=False)
         out.grad_fn = LinearBackward(x, self.w, self.b)
         return out
-    
-    #def param(self):
+
+    # def param(self):
     #    if self.bias:
     #        return [self.w, self.b]
     #    else:
@@ -194,7 +198,7 @@ class Sequential(Module):
     Combines multiples module in a sequential manner.
     The modules are chain one after the other and call with the output of the previous one as input.
     """
-    
+
     def __init__(self, elems):
         """
         Params:
@@ -204,13 +208,13 @@ class Sequential(Module):
                 
         """
         self.elems = elems
-    
+
     def forward(self, x):
         out = x
         for elem in self.elems:
             out = elem(out)
         return out
-    
+
     def param(self):
         p = []
         for elem in self.elems:

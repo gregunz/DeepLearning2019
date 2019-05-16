@@ -2,6 +2,7 @@ class SGD:
     """
     Implementation of the vanilla Stochastic Gradient Descent algorithm.
     """
+
     def __init__(self, params, lr, weight_decay=0.0):
         """
         Params:

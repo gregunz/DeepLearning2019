@@ -1,5 +1,6 @@
 import torch
 
+
 def graph_repr(model, X):
     """
     Return a string representation of the backward graph.
