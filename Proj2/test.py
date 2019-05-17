@@ -103,11 +103,12 @@ def main():
 
         # Evaluation on newly generated data to create a plot
         validation_input, validation_target = generate_disc_set(DATASET_SIZE)
-        sns.scatterplot(
-            x=validation_input.numpy()[:, 0],
-            y=validation_input.numpy()[:, 1],
-            hue=best_model(validation_input).data.argmin(1).numpy()
-        )
+        if sns is not None:
+            sns.scatterplot(
+                x=validation_input.numpy()[:, 0],
+                y=validation_input.numpy()[:, 1],
+                hue=best_model(validation_input).data.argmin(1).numpy()
+            )
         plt.savefig('plot.png')
         plt.show()
 
