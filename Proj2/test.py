@@ -11,11 +11,13 @@ from deepy.utils import graph_repr, accuracy
 try:
     import seaborn as sns
 except ImportError:
+    print("WARNING: seaborn is not installed on the machine, please install it for a better experience")
     sns = None
 
 try:
     from tqdm.auto import tqdm
 except ImportError:
+    print("WARNING: tqdm is not installed on the machine, please install it for a better experience")
     def tqdm(x):
         return x
 
@@ -109,8 +111,8 @@ def main():
                 y=validation_input.numpy()[:, 1],
                 hue=best_model(validation_input).data.argmin(1).numpy()
             )
-        plt.savefig('plot.png')
-        plt.show()
+            plt.savefig('plot.png')
+            plt.show()
 
 
 if __name__ == '__main__':
