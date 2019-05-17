@@ -154,26 +154,33 @@ class Linear(Module):
                 When set to true in addtion to the weight, a bias is learned.
         """
         super().__init__(**kwargs)
-        data = torch.empty(in_features, out_features)
+        data = torch.empty(in_features, out_features).normal_()
 
         stdv = 1. / math.sqrt(data.size(1))
 
         if weight_init == 'uniform':
             data.uniform_(-stdv, stdv)
 
-        self.w = Parameter(data.normal_(0, 1e-6),
+        self.w = Parameter(data,
                            requires_grad=True)
         if bias:
-            bias_data = torch.empty(out_features)
+            bias_data = torch.empty(out_features).normal_()
             if bias_init == 'uniform':
                 bias_data.uniform_(-stdv, stdv)
             self.b = Parameter(bias_data, requires_grad=True)
+        else:
+            self.b = None
 
     def forward(self, x):
         self.x = x
         out = x.data @ self.w.data
         if self.b:
-            out += self.b.data
+            #print("===============================")
+            #print(self.b.data.shape)
+            #print(out.shape)
+            #print(out)
+            out.add_(self.b.data)
+            #print(out.shape)
         # TODO check with bias requires_grad
         out = Variable(out, requires_grad=self.w.requires_grad or x.requires_grad,
                        is_leaf=False)
