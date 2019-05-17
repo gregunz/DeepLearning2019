@@ -152,6 +152,10 @@ class Linear(Module):
                 Number of feature to outputs
             bias: bool
                 When set to true in addtion to the weight, a bias is learned.
+            weight_init: {'uniform', 'normal'}
+                Distribution to use for the weight initialization
+            bias_init: {'uniform', 'normal'}
+                Distribution to use for the bias initialization
         """
         super().__init__(**kwargs)
         data = torch.empty(in_features, out_features).normal_()
