@@ -55,6 +55,8 @@ def main():
         if len(accuracies) > 0:
             plot_from_tensors(accuracies, losses, model_names, save_df=True)
     except ImportError:
+        print(
+            'WARNING: plots are not generated because pandas and/or seaborn and/or pickle libraries are not installed')
         pass
 
 
