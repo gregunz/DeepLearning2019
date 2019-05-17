@@ -1,7 +1,7 @@
 # Deep Learning Projects
 Deep Learning (EE-559 @EPFL) Spring 2019
 
-# Project 1
+# Project 1 - Weight Sharing and Auxiliary Loss
 ```
 cd Proj1
 ```
@@ -31,7 +31,22 @@ usage: test.py [-h] [--models MODELS] [--epochs EPOCHS] [--rounds ROUNDS]
                [--seed SEED] [--aux AUX_LOSS_FACTOR]
 ```
 
-# Project 2
+# Project 2 - Deepy
 ```
 cd Proj2
+```
+## Dependencies
+Following libraries are required:
+```
+torch
+```
+They can be installed using the following command:
+```
+pip install <insert lib here>
+```
+## Example
+An simple example is provided in the report and a full example is provided in the file `test.py`
+ which can be used with the following command:.
+```
+python3 test.py
 ```
