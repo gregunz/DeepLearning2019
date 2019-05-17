@@ -6,7 +6,7 @@ Deep Learning (EE-559 @EPFL) Spring 2019
 cd Proj1
 ```
 ## How to run the code
-### Dependencies
+### Dependencies
 Following libraries are required:
 ```
 matplotlib
@@ -35,7 +35,7 @@ usage: test.py [-h] [--models MODELS] [--epochs EPOCHS] [--rounds ROUNDS]
 ```
 cd Proj2
 ```
-## Dependencies
+## Dependencies
 Following libraries are required:
 ```
 torch
