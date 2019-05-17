@@ -1,7 +1,5 @@
-import seaborn as sns
 import torch
 from matplotlib import pyplot as plt
-from tqdm.auto import tqdm
 
 from data import gen_train_test, transform_target, generate_disc_set, DATASET_SIZE
 from deepy.loss import MSE
@@ -9,6 +7,17 @@ from deepy.nn import Linear, Sequential, Relu, Tanh
 from deepy.optim import SGD
 from deepy.tensor import Variable
 from deepy.utils import graph_repr, accuracy
+
+try:
+    import seaborn as sns
+except ImportError:
+    sns = None
+
+try:
+    from tqdm.auto import tqdm
+except ImportError:
+    def tqdm(x):
+        return x
 
 SEED = 42
 NUM_ROUNDS = 10
