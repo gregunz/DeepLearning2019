@@ -8,7 +8,7 @@ class MSEBackward(Function):
         self.t = t
 
     def dloss(self, v, t):
-        return 2 * (v.data - t.data)
+        return 2 * (v.data - t.data) / t.size(0)
 
     def inputs(self):
         return [self.v, self.t]
@@ -29,7 +29,7 @@ class MSE(Module):
         super().__init__()
 
     def loss(self, v, t):
-        x = (t.data - v.data).pow(2).mean(1).sum()
+        x = (t.data - v.data).pow(2).mean()
         out = Variable(x, requires_grad=t.requires_grad or v.requires_grad, is_leaf=False)
         out.grad_fn = MSEBackward(v, t)
         return out

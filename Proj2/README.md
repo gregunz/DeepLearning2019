@@ -1,9 +1,7 @@
 ![Deepy Logo](deepy.png)
 
 --------------------------------------------------------------------------------
-
-# How to run the code
-
+# Project 2 - Deepy
 ## Dependencies
 Following libraries are required:
 ```
@@ -16,8 +14,9 @@ They can be installed using the following command:
 ```
 pip install <insert lib here>
 ```
-## Test
-In order to test the results claimed in the report, please run the following `test.py` file using the following command:
+## Example
+An simple example is provided in the report and a full example is provided in the file `test.py`
+ which can be used with the following command:.
 ```
 python3 test.py
 ```

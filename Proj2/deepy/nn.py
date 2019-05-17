@@ -90,7 +90,7 @@ class ReluBackward(Function):
         self.x = x
 
     def _drelu(self, x):
-        return (x > 0).type(torch.float)
+        return (x > 0).float()
 
     def inputs(self):
         return [self.x]
@@ -165,8 +165,7 @@ class Linear(Module):
         if weight_init == 'uniform':
             data.uniform_(-stdv, stdv)
 
-        self.w = Parameter(data,
-                           requires_grad=True)
+        self.w = Parameter(data, requires_grad=True)
         if bias:
             bias_data = torch.empty(out_features).normal_()
             if bias_init == 'uniform':
@@ -192,7 +191,7 @@ class Sequential(Module):
     The modules are chain one after the other and call with the output of the previous one as input.
     """
 
-    def __init__(self, elems):
+    def __init__(self, elems, **kwargs):
         """
         Params:
             elems: List
@@ -200,6 +199,7 @@ class Sequential(Module):
                 The order of the element in the list defines the order of calls to the modules.
 
         """
+        super().__init__(**kwargs)
         self.elems = elems
 
     def forward(self, x):
