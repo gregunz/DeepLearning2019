@@ -5,7 +5,6 @@ import torch
 from constants import NUM_EPOCHS, NUM_ROUNDS, SEED, AUX_LOSS_FACTOR
 from evaluation import evaluate_model
 from models import SimpleFC, SimpleCNN
-from plot import plot_from_tensors
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--models', action="store", dest="models", type=str, default='1234')
@@ -51,8 +50,12 @@ def main():
         evaluate(SimpleCNN, 'CNN', 'Convolutional', with_aux=True)
 
     # Plotting results
-    if len(accuracies) > 0:
-        plot_from_tensors(accuracies, losses, model_names, save_df=True)
+    try:
+        from plot import plot_from_tensors
+        if len(accuracies) > 0:
+            plot_from_tensors(accuracies, losses, model_names, save_df=True)
+    except ImportError:
+        pass
 
 
 if __name__ == '__main__':
