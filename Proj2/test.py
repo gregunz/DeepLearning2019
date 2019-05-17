@@ -111,8 +111,8 @@ def main():
                 y=validation_input.numpy()[:, 1],
                 hue=best_model(validation_input).data.argmin(1).numpy()
             )
-        plt.savefig('plot.png')
-        plt.show()
+            plt.savefig('plot.png')
+            plt.show()
 
 
 if __name__ == '__main__':
