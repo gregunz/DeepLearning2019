@@ -154,16 +154,16 @@ class Linear(Module):
                 When set to true in addtion to the weight, a bias is learned.
         """
         super().__init__(**kwargs)
-        data = torch.empty(in_features, out_features)
+        data = torch.empty(in_features, out_features).normal_()
 
         stdv = 1. / math.sqrt(data.size(1))
 
         if weight_init == 'uniform':
             data.uniform_(-stdv, stdv)
-        self.w = Parameter(data, requires_grad=True)
 
+        self.w = Parameter(data, requires_grad=True)
         if bias:
-            bias_data = torch.empty(out_features)
+            bias_data = torch.empty(out_features).normal_()
             if bias_init == 'uniform':
                 bias_data.uniform_(-stdv, stdv)
             self.b = Parameter(bias_data, requires_grad=True)
@@ -171,19 +171,14 @@ class Linear(Module):
             self.b = None
 
     def forward(self, x):
+        self.x = x
         out = x.data @ self.w.data
         if self.b:
-            out += self.b.data
-        # TODO check with bias requires_grad
-        out = Variable(out, requires_grad=self.w.requires_grad or x.requires_grad, is_leaf=False)
+            out.add_(self.b.data)
+        out = Variable(out, requires_grad=self.w.requires_grad or x.requires_grad,
+                       is_leaf=False)
         out.grad_fn = LinearBackward(x, self.w, self.b)
         return out
-
-    # def param(self):
-    #    if self.bias:
-    #        return [self.w, self.b]
-    #    else:
-    #        return [self.w]
 
 
 class Sequential(Module):
@@ -198,7 +193,7 @@ class Sequential(Module):
             elems: List
                 List of Modules to combines.
                 The order of the element in the list defines the order of calls to the modules.
-                
+
         """
         super().__init__(**kwargs)
         self.elems = elems
