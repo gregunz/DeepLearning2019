@@ -175,23 +175,11 @@ class Linear(Module):
         self.x = x
         out = x.data @ self.w.data
         if self.b:
-            #print("===============================")
-            #print(self.b.data.shape)
-            #print(out.shape)
-            #print(out)
             out.add_(self.b.data)
-            #print(out.shape)
-        # TODO check with bias requires_grad
         out = Variable(out, requires_grad=self.w.requires_grad or x.requires_grad,
                        is_leaf=False)
         out.grad_fn = LinearBackward(x, self.w, self.b)
         return out
-
-    # def param(self):
-    #    if self.bias:
-    #        return [self.w, self.b]
-    #    else:
-    #        return [self.w]
 
 
 class Sequential(Module):
@@ -206,7 +194,7 @@ class Sequential(Module):
             elems: List
                 List of Modules to combines.
                 The order of the element in the list defines the order of calls to the modules.
-                
+
         """
         self.elems = elems
 
