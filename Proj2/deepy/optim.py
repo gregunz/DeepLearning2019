@@ -9,10 +9,10 @@ class SGD:
             params: List
                 A list of Variable all that requires_grad and are leaf.
                 The Variables present in that list will get there weight (data) updated at each step
-            lr: flaot
+            lr: float
                 The learning rate
             weight_decay: float
-                The penaly to add to the gradient for the L2 regularization.
+                The penalty to add to the gradient for the L2 regularization.
             """
         self.params = params
         self.lr = lr
@@ -20,7 +20,7 @@ class SGD:
 
     def zero_grad(self):
         """
-        Reset the gradent of the tracked Variables to zero.
+        Reset the gradient of the tracked Variables to zero.
         """
         for var in self.params:
             var.grad.zero_()
