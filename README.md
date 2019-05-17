@@ -1,7 +1,7 @@
 # Deep Learning Projects
 Deep Learning (EE-559 @EPFL) Spring 2019
 
-# [Project 1 - Weight Sharing and Auxiliary Loss](Proj1/README.md)
+# [Project 1 - Weight Sharing and Auxiliary Loss](Proj1)
 ```
 cd Proj1
 ```
@@ -31,7 +31,7 @@ usage: test.py [-h] [--models MODELS] [--epochs EPOCHS] [--rounds ROUNDS]
                [--seed SEED] [--aux AUX_LOSS_FACTOR]
 ```
 
-# [Project 2 - Deepy](Proj2/README.md)
+# [Project 2 - Deepy](Proj2)
 ```
 cd Proj2
 ```
