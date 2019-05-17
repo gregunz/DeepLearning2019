@@ -2,7 +2,7 @@
 
 --------------------------------------------------------------------------------
 # Project 2 - Deepy
-## Dependencies
+## Dependencies
 Following libraries are required:
 ```
 torch
