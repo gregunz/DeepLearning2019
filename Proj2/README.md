@@ -1,9 +1,16 @@
+![Deepy Logo](deepy.png)
+
+--------------------------------------------------------------------------------
+
 # How to run the code
 
 ## Dependencies
 Following libraries are required:
 ```
 torch
+seaborn
+tqdm
+matplotlib
 ```
 They can be installed using the following command:
 ```
